@@ -1,0 +1,90 @@
+<view class="form">
+  <view class="card">
+    <view class="card-title">基础信息</view>
+    <view class="card-desc">先告诉旅伴去哪里、什么时候出发。</view>
+
+    <view class="field">
+      <view class="field-label">目的地</view>
+      <input class="input" placeholder="例如：云南大理" data-field="destination" value="{{value.destination}}" bindinput="onInput" />
+    </view>
+    <view class="field">
+      <view class="field-label">出行日期</view>
+      <picker mode="date" value="{{value.startDate}}" bindchange="onPicker" data-field="startDate">
+        <view class="input">{{value.startDate || '请选择日期'}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <view class="field-label">旅行天数</view>
+      <input class="input" type="number" data-field="days" value="{{value.days}}" bindinput="onNumber" />
+    </view>
+    <view class="field">
+      <view class="field-label">旅行人数</view>
+      <input class="input" type="number" data-field="travelers" value="{{value.travelers}}" bindinput="onNumber" />
+    </view>
+    <view class="field">
+      <view class="field-label">人均预算（元）</view>
+      <input class="input" type="number" data-field="budgetPerPerson" value="{{value.budgetPerPerson}}" bindinput="onNumber" />
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">同行与节奏</view>
+    <view class="card-desc">帮助 AI 控制行程密度与活动类型。</view>
+
+    <view class="field">
+      <view class="field-label">同行人类型</view>
+      <view class="row">
+        <view
+          wx:for="{{companionOptions}}"
+          wx:key="key"
+          class="chip {{value.companionType === item.key ? 'chip-active' : ''}}"
+          data-key="{{item.key}}"
+          bindtap="onCompanion"
+        >{{item.label}}</view>
+      </view>
+    </view>
+
+    <view class="field">
+      <view class="field-label">旅行强度</view>
+      <view class="row">
+        <view
+          wx:for="{{intensityOptions}}"
+          wx:key="key"
+          class="chip {{value.intensity === item.key ? 'chip-active' : ''}}"
+          data-key="{{item.key}}"
+          bindtap="onIntensity"
+        >{{item.label}}</view>
+      </view>
+    </view>
+
+    <view class="field">
+      <view class="field-label">希望起床时间</view>
+      <picker mode="time" value="{{value.wakeUpTime}}" bindchange="onPicker" data-field="wakeUpTime">
+        <view class="input">{{value.wakeUpTime || '08:00'}}</view>
+      </picker>
+    </view>
+
+    <view class="field row" style="justify-content: space-between;">
+      <view class="field-label" style="margin-bottom:0;">是否自驾</view>
+      <switch checked="{{value.selfDrive}}" color="#247470" bindchange="onSelfDrive" />
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">旅行偏好</view>
+    <view class="card-desc">可多选，AI 会据此排序景点与餐厅。</view>
+    <view class="row">
+      <view
+        wx:for="{{preferenceOptions}}"
+        wx:key="key"
+        class="chip {{prefActive[item.key] ? 'chip-active' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="onPreference"
+      >{{item.label}}</view>
+    </view>
+    <view class="field" style="margin-top: 16rpx;">
+      <view class="field-label">特殊要求</view>
+      <textarea class="textarea" placeholder="例如：想看日出、少走回头路…" data-field="specialRequests" value="{{value.specialRequests}}" bindinput="onInput" />
+    </view>
+  </view>
+</view>

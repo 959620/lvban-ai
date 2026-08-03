@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "行程详情",
+  "usingComponents": {
+    "day-timeline": "/components/day-timeline/day-timeline"
+  }
+}

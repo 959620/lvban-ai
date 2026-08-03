@@ -1,0 +1,47 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/create/create",
+    "pages/trips/trips",
+    "pages/detail/detail",
+    "pages/plan/plan",
+    "pages/budget/budget",
+    "pages/checklist/checklist"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#247470",
+    "navigationBarTitleText": "旅伴 AI",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f4fbfa",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#6b7c7b",
+    "selectedColor": "#247470",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/home.png",
+        "selectedIconPath": "images/home-active.png"
+      },
+      {
+        "pagePath": "pages/create/create",
+        "text": "创建",
+        "iconPath": "images/create.png",
+        "selectedIconPath": "images/create-active.png"
+      },
+      {
+        "pagePath": "pages/trips/trips",
+        "text": "我的行程",
+        "iconPath": "images/trips.png",
+        "selectedIconPath": "images/trips-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

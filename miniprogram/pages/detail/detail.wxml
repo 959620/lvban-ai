@@ -1,0 +1,48 @@
+<view class="page" wx:if="{{missing}}">
+  <view class="section-title">未找到这份行程</view>
+  <view class="muted" style="margin-bottom: 24rpx;">可能尚未生成，或本地数据已被清空。</view>
+  <button class="btn-primary" bindtap="goCreate">重新创建旅行</button>
+</view>
+
+<view class="page" wx:elif="{{trip}}">
+  <view class="cover-wrap">
+    <image class="cover" mode="aspectFill" src="{{trip.coverImage}}" />
+    <view class="cover-mask">
+      <view class="row">
+        <text class="badge light">{{trip.request.destination}}</text>
+        <text class="badge light">{{trip.request.days}} 天 · {{trip.request.travelers}} 人</text>
+      </view>
+      <view class="cover-title">{{trip.title}}</view>
+    </view>
+  </view>
+
+  <view class="actions row">
+    <button class="btn-primary mini" bindtap="goPlan">AI 对话修改</button>
+    <button class="btn-outline mini" bindtap="goBudget">预算</button>
+    <button class="btn-outline mini" bindtap="goChecklist">准备清单</button>
+  </view>
+
+  <view class="card info-grid">
+    <view class="info">
+      <view class="muted">出发日期</view>
+      <view>{{trip.request.startDate}}</view>
+    </view>
+    <view class="info">
+      <view class="muted">同行类型</view>
+      <view>{{trip.companionText}}</view>
+    </view>
+    <view class="info">
+      <view class="muted">旅行强度</view>
+      <view>{{trip.intensityText}}</view>
+    </view>
+    <view class="info">
+      <view class="muted">预计费用</view>
+      <view>{{trip.budgetText}}</view>
+    </view>
+  </view>
+
+  <view class="muted" style="margin-bottom: 24rpx;">偏好：{{trip.preferenceText}}</view>
+
+  <view class="section-title">每日行程时间轴</view>
+  <day-timeline days="{{trip.days}}" />
+</view>

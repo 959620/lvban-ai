@@ -1,0 +1,33 @@
+<view class="page" wx:if="{{missing}}">
+  <view class="section-title">未找到准备清单</view>
+</view>
+
+<view class="page" wx:else>
+  <view class="section-title">出发前检查</view>
+  <view class="muted" style="margin-bottom: 24rpx;">根据目的地与行程自动生成，可勾选完成状态。</view>
+
+  <view class="card">
+    <view class="card-title">准备进度 {{done}}/{{total}}</view>
+    <view class="bar">
+      <view class="bar-fill" style="width: {{percent}}%;"></view>
+    </view>
+  </view>
+
+  <view class="card" wx:for="{{groups}}" wx:key="category">
+    <view class="card-title">{{item.category}}</view>
+    <view
+      class="check-item"
+      wx:for="{{item.items}}"
+      wx:for-item="ck"
+      wx:key="id"
+      data-id="{{ck.id}}"
+      bindtap="onToggle"
+    >
+      <text class="check-icon">{{ck.checked ? '☑' : '☐'}}</text>
+      <text class="{{ck.checked ? 'done' : ''}}">{{ck.label}}</text>
+      <text class="essential" wx:if="{{ck.essential}}">必备</text>
+    </view>
+  </view>
+
+  <button class="btn-outline" bindtap="goDetail">返回行程</button>
+</view>

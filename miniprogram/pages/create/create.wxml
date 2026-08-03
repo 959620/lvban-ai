@@ -1,0 +1,14 @@
+<view class="page">
+  <view class="section-title">告诉旅伴你的旅行需求</view>
+  <view class="muted" style="margin-bottom: 24rpx;">填写越完整，行程越贴合。</view>
+
+  <trip-form value="{{form}}" bind:change="onFormChange" />
+
+  <view class="card" wx:if="{{errors.length}}" style="background:#fff7ed;border-color:#fed7aa;">
+    <view class="card-title" style="color:#9a3412;">还差一点点信息</view>
+    <view class="muted" style="color:#9a3412;" wx:for="{{errors}}" wx:key="*this">· {{item}}</view>
+  </view>
+
+  <button class="btn-primary" bindtap="onSubmit">生成旅行计划</button>
+  <button class="btn-outline" style="margin-top: 16rpx;" bindtap="goDemo">先看示例行程</button>
+</view>

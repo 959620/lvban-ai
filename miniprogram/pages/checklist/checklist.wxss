@@ -1,0 +1,40 @@
+.bar {
+  height: 12rpx;
+  border-radius: 999rpx;
+  background: var(--sea-100);
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: var(--sea-500);
+}
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid var(--border);
+  font-size: 28rpx;
+}
+
+.check-item:last-child {
+  border-bottom: none;
+}
+
+.check-icon {
+  font-size: 34rpx;
+  color: var(--sea-600);
+}
+
+.done {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.essential {
+  margin-left: auto;
+  font-size: 22rpx;
+  color: #b45309;
+}

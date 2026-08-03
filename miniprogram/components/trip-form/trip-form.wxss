@@ -1,0 +1,4 @@
+/* 使用全局 app.wxss 样式 */
+.form {
+  width: 100%;
+}

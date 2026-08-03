@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "module": "CommonJS",
+    "target": "ES2017",
+    "allowJs": true,
+    "experimentalDecorators": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "alwaysStrict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "strict": true,
+    "strictPropertyInitialization": true,
+    "lib": ["ES2017"],
+    "typeRoots": ["./typings", "./node_modules/miniprogram-api-typings"]
+  },
+  "include": ["./miniprogram/**/*.ts", "./typings/**/*.d.ts"],
+  "exclude": ["node_modules"]
+}

@@ -1,0 +1,70 @@
+.day-tabs {
+  white-space: nowrap;
+  margin-bottom: 20rpx;
+}
+
+.day-tab {
+  display: inline-block;
+  padding: 12rpx 28rpx;
+  margin-right: 12rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid var(--border);
+  background: #fff;
+  font-size: 24rpx;
+}
+
+.day-tab-active {
+  background: var(--sea-600);
+  border-color: var(--sea-600);
+  color: #fff;
+}
+
+.node {
+  position: relative;
+  padding-left: 28rpx;
+}
+
+.node-dot {
+  position: absolute;
+  left: 0;
+  top: 36rpx;
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: #fff;
+  border: 4rpx solid var(--sea-500);
+}
+
+.node-card {
+  margin-left: 12rpx;
+}
+
+.node-time {
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-right: 8rpx;
+}
+
+.node-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  margin: 10rpx 0;
+}
+
+.note {
+  margin-top: 12rpx;
+  padding: 12rpx 16rpx;
+  border-radius: 16rpx;
+  background: var(--sea-50);
+  color: var(--sea-700);
+  font-size: 24rpx;
+}
+
+.food {
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid var(--border);
+}
+
+.food:last-child {
+  border-bottom: none;
+}

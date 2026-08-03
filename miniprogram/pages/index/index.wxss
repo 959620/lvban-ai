@@ -1,0 +1,73 @@
+.home {
+  padding: 0;
+}
+
+.hero {
+  position: relative;
+  height: 88vh;
+  min-height: 980rpx;
+  overflow: hidden;
+}
+
+.hero-bg {
+  width: 100%;
+  height: 100%;
+}
+
+.hero-mask {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(180deg, rgba(16,41,40,0.55) 0%, rgba(16,41,40,0.25) 45%, #f4fbfa 100%);
+}
+
+.hero-content {
+  position: absolute;
+  left: 40rpx;
+  right: 40rpx;
+  bottom: 80rpx;
+  color: #fff;
+}
+
+.brand-en {
+  letter-spacing: 0.2em;
+  font-size: 22rpx;
+  opacity: 0.85;
+  margin-bottom: 12rpx;
+}
+
+.brand {
+  font-size: 72rpx;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.hero-desc {
+  margin-top: 20rpx;
+  font-size: 28rpx;
+  line-height: 1.6;
+  opacity: 0.92;
+  max-width: 620rpx;
+}
+
+.hero-actions {
+  margin-top: 32rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.soft {
+  background: rgba(255,255,255,0.9) !important;
+}
+
+.page-body {
+  padding: 40rpx 32rpx 80rpx;
+}
+
+.cta {
+  background: linear-gradient(135deg, #215d5a, #2f918a) !important;
+  border: none !important;
+}

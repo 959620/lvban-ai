@@ -1,0 +1,33 @@
+.stat {
+  flex: 1;
+  min-width: 28%;
+  padding: 20rpx;
+}
+
+.stat-num {
+  margin-top: 8rpx;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.remain {
+  color: #047857;
+}
+
+.bar-item {
+  margin-bottom: 20rpx;
+  font-size: 24rpx;
+}
+
+.bar {
+  margin-top: 10rpx;
+  height: 12rpx;
+  border-radius: 999rpx;
+  background: var(--sea-100);
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2f918a, #4aada4);
+}

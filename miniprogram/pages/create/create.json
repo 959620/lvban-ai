@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "创建旅行",
+  "usingComponents": {
+    "trip-form": "/components/trip-form/trip-form"
+  }
+}

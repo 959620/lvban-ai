@@ -1,0 +1,23 @@
+<view class="page">
+  <view class="row" style="justify-content: space-between; margin-bottom: 24rpx;">
+    <view>
+      <view class="section-title">已保存的旅行计划</view>
+      <view class="muted">本地模拟数据，后续可接云同步。</view>
+    </view>
+  </view>
+
+  <button class="btn-primary" style="margin-bottom: 24rpx;" bindtap="goCreate">新建行程</button>
+
+  <view class="card trip" wx:for="{{trips}}" wx:key="id" data-id="{{item.id}}" bindtap="openTrip">
+    <image class="cover" mode="aspectFill" src="{{item.coverImage}}" />
+    <view class="trip-body">
+      <view class="row" style="justify-content: space-between;">
+        <view class="card-title" style="margin-bottom:0;">{{item.title}}</view>
+        <text class="badge">{{item.statusText}}</text>
+      </view>
+      <view class="muted" style="margin-top: 12rpx;">{{item.destination}}</view>
+      <view class="muted">{{item.startDate}} · {{item.days}} 天 · {{item.travelers}} 人</view>
+      <view class="muted">预计 {{item.budgetText}}</view>
+    </view>
+  </view>
+</view>

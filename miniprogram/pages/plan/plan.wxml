@@ -1,0 +1,85 @@
+<view class="page" wx:if="{{missing}}">
+  <view class="section-title">未找到这份行程</view>
+  <button class="btn-primary" bindtap="goCreate">重新创建旅行</button>
+</view>
+
+<view class="page" wx:elif="{{trip}}">
+  <view class="banner card">
+    <view class="card-title">行程已生成：{{summaryText}} · {{nodeCount}} 个节点</view>
+    <view class="muted">可在「调整规划」中修改需求并保存；也可通过对话局部微调。</view>
+  </view>
+
+  <view class="section-title">{{title}}</view>
+
+  <view class="row" style="margin-bottom: 20rpx;">
+    <button class="btn-outline mini" bindtap="goDetail">完整行程页</button>
+    <button class="btn-primary mini" bindtap="goBudget">查看预算</button>
+    <button class="btn-outline mini" bindtap="onRegenerate">重新生成规划</button>
+  </view>
+
+  <view class="tabs">
+    <view class="tab {{leftTab === 'chat' ? 'tab-active' : ''}}" data-tab="chat" bindtap="switchTab">AI 对话</view>
+    <view class="tab {{leftTab === 'adjust' ? 'tab-active' : ''}}" data-tab="adjust" bindtap="switchTab">调整规划</view>
+  </view>
+
+  <block wx:if="{{leftTab === 'chat'}}">
+    <view class="chat card">
+      <view class="card-title">AI 对话规划</view>
+      <scroll-view scroll-y class="chat-list">
+        <view
+          wx:for="{{messages}}"
+          wx:key="id"
+          class="bubble-wrap {{item.isUser ? 'right' : 'left'}}"
+        >
+          <view class="bubble {{item.isUser ? 'user' : 'bot'}}">{{item.content}}</view>
+        </view>
+        <view class="muted" wx:if="{{pending}}">旅伴正在思考…</view>
+      </scroll-view>
+
+      <view class="quick-row">
+        <view
+          class="chip"
+          wx:for="{{quickPrompts}}"
+          wx:key="*this"
+          data-text="{{item}}"
+          bindtap="sendPrompt"
+        >{{item}}</view>
+      </view>
+
+      <view class="composer">
+        <textarea class="textarea" placeholder="例如：删掉某个景点" value="{{input}}" bindinput="onInput" />
+        <button class="btn-primary send" bindtap="sendInput" disabled="{{pending}}">发送</button>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="row" style="justify-content: space-between;">
+        <view class="card-title" style="margin-bottom:0;">当前需求摘要</view>
+        <button class="btn-outline mini" data-tab="adjust" bindtap="switchTab">去调整</button>
+      </view>
+      <view class="muted" style="margin-top: 16rpx;">目的地：{{trip.request.destination}}</view>
+      <view class="muted">日期：{{trip.request.startDate}} · {{trip.request.days}} 天</view>
+      <view class="muted">人数：{{trip.request.travelers}} · {{companionText}}</view>
+      <view class="muted">人均预算：{{budgetText}}</view>
+      <view class="muted">强度：{{intensityText}}</view>
+      <view class="muted">自驾：{{selfDriveText}}</view>
+      <view class="muted">偏好：{{preferenceText}}</view>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="card">
+      <view class="card-title">调整规划</view>
+      <view class="card-desc">修改基础信息、同行与节奏、旅行偏好后保存，将按新需求重新生成行程。</view>
+      <trip-form value="{{form}}" bind:change="onFormChange" />
+      <view class="card" wx:if="{{errors.length}}" style="background:#fff7ed;border-color:#fed7aa;">
+        <view class="muted" style="color:#9a3412;" wx:for="{{errors}}" wx:key="*this">· {{item}}</view>
+      </view>
+      <button class="btn-primary" bindtap="onSaveAdjust">保存并重新生成</button>
+      <button class="btn-outline" style="margin-top: 16rpx;" bindtap="onCancelAdjust">返回对话</button>
+    </view>
+  </block>
+
+  <view class="section-title" style="margin-top: 24rpx;">每日行程规划</view>
+  <day-timeline days="{{trip.days}}" />
+</view>

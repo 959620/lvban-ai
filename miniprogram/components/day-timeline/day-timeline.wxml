@@ -1,0 +1,58 @@
+<view class="timeline" wx:if="{{current}}">
+  <scroll-view scroll-x class="day-tabs">
+    <view
+      wx:for="{{days}}"
+      wx:key="day"
+      class="day-tab {{activeDay === item.day ? 'day-tab-active' : ''}}"
+      data-day="{{item.day}}"
+      bindtap="onSelectDay"
+    >Day {{item.day}}</view>
+  </scroll-view>
+
+  <view class="card">
+    <view class="card-title">Day {{current.day}} · {{current.title}}</view>
+    <view class="row" style="margin-bottom: 12rpx;">
+      <text class="badge">{{current.date}}</text>
+      <text class="badge">{{current.area}}</text>
+    </view>
+    <view class="muted">{{current.summary}}</view>
+    <view class="muted" style="margin-top: 8rpx;">主题：{{current.theme}}</view>
+  </view>
+
+  <view class="node" wx:for="{{current.nodes}}" wx:key="id">
+    <view class="node-dot"></view>
+    <view class="card node-card">
+      <view class="row">
+        <text class="node-time">{{item.time}}</text>
+        <text class="badge">{{placeTypeLabels[item.placeType]}}</text>
+      </view>
+      <view class="node-name">{{item.placeName}}</view>
+      <view class="muted">{{item.reason}}</view>
+      <view class="muted" style="margin-top: 8rpx;">
+        停留 {{item.suggestedDuration}} · {{transportLabels[item.transport]}} {{item.transportDuration}} · 约 ¥{{item.estimatedCost}}
+      </view>
+      <view class="note" wx:if="{{item.notes}}">注意：{{item.notes}}</view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">当日美食推荐</view>
+    <view class="food" wx:for="{{current.foods}}" wx:key="id">
+      <text class="badge">{{mealLabels[item.mealType]}}</text>
+      <view class="node-name">{{item.name}}</view>
+      <view class="muted">{{item.reason}}</view>
+      <view class="muted">{{item.cuisine}} · 约 ¥{{item.estimatedCost}} · 步行约 {{item.walkingMinutes}} 分钟</view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">备用方案</view>
+    <view class="food" wx:for="{{current.backups}}" wx:key="scenario">
+      <view class="node-name">{{item.title}}</view>
+      <view class="muted">{{item.summary}}</view>
+      <view class="muted" wx:for="{{item.nodes}}" wx:for-item="n" wx:key="id">
+        {{n.time}} · {{n.placeName}} — {{n.reason}}
+      </view>
+    </view>
+  </view>
+</view>

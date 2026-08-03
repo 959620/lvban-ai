@@ -1,0 +1,18 @@
+node_modules/
+miniprogram_npm/
+.DS_Store
+project.private.config.json
+*.log
+.idea/
+.vscode/
+
+# 教务工作台
+backend/.venv/
+backend/.env
+backend/*.db
+backend/**/__pycache__/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+*.pyc
+.Python

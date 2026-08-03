@@ -1,0 +1,90 @@
+.banner {
+  background: rgba(216, 240, 237, 0.85);
+  border-color: #b3e0db;
+}
+
+.tabs {
+  display: flex;
+  gap: 8rpx;
+  padding: 8rpx;
+  background: rgba(255,255,255,0.8);
+  border-radius: 20rpx;
+  margin-bottom: 20rpx;
+  border: 1rpx solid var(--border);
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 18rpx 0;
+  border-radius: 16rpx;
+  font-size: 26rpx;
+  color: var(--sea-700);
+}
+
+.tab-active {
+  background: var(--sea-600);
+  color: #fff;
+}
+
+.chat-list {
+  height: 420rpx;
+  margin: 16rpx 0;
+}
+
+.bubble-wrap {
+  display: flex;
+  margin-bottom: 16rpx;
+}
+
+.bubble-wrap.right {
+  justify-content: flex-end;
+}
+
+.bubble {
+  max-width: 80%;
+  padding: 18rpx 22rpx;
+  border-radius: 20rpx;
+  font-size: 26rpx;
+  line-height: 1.5;
+}
+
+.bubble.user {
+  background: var(--sea-600);
+  color: #fff;
+}
+
+.bubble.bot {
+  background: var(--sea-50);
+  color: var(--sea-900);
+}
+
+.quick-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 12rpx;
+}
+
+.composer {
+  display: flex;
+  gap: 12rpx;
+  align-items: flex-end;
+}
+
+.composer .textarea {
+  flex: 1;
+  min-height: 120rpx;
+}
+
+.send {
+  width: 140rpx !important;
+  padding: 0 !important;
+}
+
+.mini {
+  display: inline-block !important;
+  margin: 0 8rpx 8rpx 0 !important;
+  padding: 0 22rpx !important;
+  line-height: 60rpx !important;
+  font-size: 24rpx !important;
+}

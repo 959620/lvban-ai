@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "AI 对话规划",
+  "usingComponents": {
+    "trip-form": "/components/trip-form/trip-form",
+    "day-timeline": "/components/day-timeline/day-timeline"
+  }
+}

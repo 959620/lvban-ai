@@ -1,0 +1,9 @@
+{
+  "desc": "旅伴 AI",
+  "rules": [
+    {
+      "action": "allow",
+      "page": "*"
+    }
+  ]
+}

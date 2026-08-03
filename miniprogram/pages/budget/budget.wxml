@@ -1,0 +1,39 @@
+<view class="page" wx:if="{{missing}}">
+  <view class="section-title">未找到行程预算</view>
+</view>
+
+<view class="page" wx:else>
+  <view class="section-title">{{title}}</view>
+  <view class="muted" style="margin-bottom: 24rpx;">按住宿、交通、餐饮、门票、购物与其他拆分。</view>
+
+  <view class="row" style="gap: 12rpx;">
+    <view class="card stat">
+      <view class="muted">总预算</view>
+      <view class="stat-num">{{totalBudget}}</view>
+    </view>
+    <view class="card stat">
+      <view class="muted">预计总费用</view>
+      <view class="stat-num">{{estimatedTotal}}</view>
+    </view>
+    <view class="card stat">
+      <view class="muted">剩余预算</view>
+      <view class="stat-num remain">{{remaining}}</view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">预算拆分</view>
+    <view class="bar-item" wx:for="{{items}}" wx:key="key">
+      <view class="row" style="justify-content: space-between;">
+        <text>{{item.label}}</text>
+        <text>{{item.value}} · {{item.percent}}%</text>
+      </view>
+      <view class="bar">
+        <view class="bar-fill" style="width: {{item.percent}}%;"></view>
+      </view>
+    </view>
+  </view>
+
+  <button class="btn-outline" bindtap="goDetail">返回行程</button>
+  <button class="btn-primary" style="margin-top: 16rpx;" bindtap="goPlan">让 AI 调预算</button>
+</view>
