@@ -22,3 +22,5 @@ npm run dev
 请确认 `frontend/vite.config.ts` 里 `/api` 代理指向后端端口。
 
 接口文档：http://127.0.0.1:8004/docs
+
+生产部署（Zeabur）见 [ZEABUR.md](ZEABUR.md)。

@@ -43,12 +43,15 @@ class Settings(BaseSettings):
         dotenv_settings: PydanticBaseSettingsSource,
         file_secret_settings: PydanticBaseSettingsSource,
     ) -> tuple[PydanticBaseSettingsSource, ...]:
-        # .env 优先于进程环境变量，避免空的 OPENAI_API_KEY 覆盖文件配置
-        return init_settings, dotenv_settings, env_settings, file_secret_settings
+        # 非空环境变量优先（Zeabur）；空环境变量忽略，回退到 .env（本地）
+        return init_settings, env_settings, dotenv_settings, file_secret_settings
 
     @property
     def cors_origin_list(self) -> list[str]:
-        return [item.strip() for item in self.cors_origins.split(",") if item.strip()]
+        items = [item.strip() for item in self.cors_origins.split(",") if item.strip()]
+        if items == ["*"]:
+            return ["*"]
+        return items
 
 
 @lru_cache

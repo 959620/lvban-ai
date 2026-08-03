@@ -10,6 +10,7 @@ project.private.config.json
 backend/.venv/
 backend/.env
 backend/*.db
+backend/static/
 backend/**/__pycache__/
 frontend/dist/
 frontend/.env

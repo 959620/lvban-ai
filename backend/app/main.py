@@ -3,13 +3,16 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
-from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.api import api_router
-from app.config import get_settings
+from app.config import _BACKEND_DIR, get_settings
 from app.database import init_db
 from app.openapi_docs import APP_DESCRIPTION, OPENAPI_TAGS
 from app.schemas import HealthOut
+
+STATIC_DIR = _BACKEND_DIR / "static"
 
 
 @asynccontextmanager
@@ -20,6 +23,9 @@ async def lifespan(_: FastAPI):
 
 def create_app() -> FastAPI:
     settings = get_settings()
+    cors_origins = settings.cors_origin_list
+    allow_credentials = cors_origins != ["*"]
+
     app = FastAPI(
         title=settings.app_name,
         description=APP_DESCRIPTION,
@@ -38,8 +44,8 @@ def create_app() -> FastAPI:
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.cors_origin_list,
-        allow_credentials=True,
+        allow_origins=cors_origins if cors_origins != ["*"] else ["*"],
+        allow_credentials=allow_credentials,
         allow_methods=["*"],
         allow_headers=["*"],
     )
@@ -62,7 +68,6 @@ def create_app() -> FastAPI:
                 "displayRequestDuration": True,
             },
         )
-        # 将 Swagger UI 常用英文按钮替换为中文
         chinese_script = """
         <script>
         (function () {
@@ -153,6 +158,21 @@ def create_app() -> FastAPI:
         )
 
     app.include_router(api_router)
+
+    # 生产环境：同域托管前端 SPA（Vite build → backend/static）
+    if STATIC_DIR.is_dir() and (STATIC_DIR / "index.html").is_file():
+        assets_dir = STATIC_DIR / "assets"
+        if assets_dir.is_dir():
+            app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+        @app.get("/{full_path:path}", include_in_schema=False)
+        def spa_fallback(full_path: str):
+            _ = full_path
+            candidate = STATIC_DIR / full_path
+            if full_path and candidate.is_file():
+                return FileResponse(candidate)
+            return FileResponse(STATIC_DIR / "index.html")
+
     return app
 
 

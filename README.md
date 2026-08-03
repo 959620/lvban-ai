@@ -2,7 +2,7 @@
 
 智能旅行规划小程序。用户输入目的地、日期、人数、预算与偏好后，生成可执行的个性化行程（当前为前端模拟数据）。
 
-> 同仓库另有 **教务智能工作台**（React + FastAPI），说明见 [JIAOWU.md](JIAOWU.md)。
+> 同仓库另有 **教务智能工作台**（React + FastAPI），说明见 [JIAOWU.md](JIAOWU.md)；部署见 [ZEABUR.md](ZEABUR.md)。
 
 ## 功能
 
