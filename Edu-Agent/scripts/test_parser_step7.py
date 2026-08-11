@@ -3,10 +3,17 @@ Step 7 解析器本地验证（不依赖真实 OpenAI Key）。
 
 运行：
   cd Edu-Agent
-  .venv/bin/python scripts/test_parser_step7.py
+  PYTHONPATH=. .venv/bin/python scripts/test_parser_step7.py
 """
 
 from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 import json
 from unittest.mock import patch
