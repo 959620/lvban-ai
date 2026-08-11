@@ -90,3 +90,37 @@ class ParseAndCreateResponse(BaseModel):
 
     parsed: ParsedTaskPreview
     task: TaskResponse
+
+
+class TaskUpdateRequest(BaseModel):
+    """
+    部分更新任务字段。
+
+    设计原因：教务常改截止时间/优先级；due_at 变更时服务层会重建未发送提醒。
+    """
+
+    title: str | None = Field(default=None, min_length=1, max_length=200)
+    description: str | None = None
+    student_name: str | None = Field(default=None, max_length=100)
+    student_id: int | None = None
+    priority: Priority | None = None
+    due_at: datetime | None = None
+    clear_due_at: bool = Field(
+        default=False,
+        description="为 True 时清空截止时间，并取消未发送提醒",
+    )
+    reminder_offsets_minutes: list[int] | None = None
+    auto_create_student: bool = True
+
+
+class TaskStatusUpdateRequest(BaseModel):
+    """状态流转：pending / in_progress / done / cancelled。"""
+
+    status: TaskStatus
+
+
+class TaskListResponse(BaseModel):
+    """任务列表分页响应。"""
+
+    total: int
+    items: list[TaskResponse]

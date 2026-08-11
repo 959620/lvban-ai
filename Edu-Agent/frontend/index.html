@@ -57,8 +57,40 @@
       </div>
     </section>
 
+    <section class="panel">
+      <div class="panel-head">
+        <h2>任务列表</h2>
+        <button type="button" id="btn-refresh" class="btn secondary">刷新</button>
+      </div>
+
+      <div class="filters">
+        <label>状态
+          <select id="filter-status">
+            <option value="">全部</option>
+            <option value="pending">pending</option>
+            <option value="in_progress">in_progress</option>
+            <option value="done">done</option>
+            <option value="cancelled">cancelled</option>
+          </select>
+        </label>
+        <label>学生
+          <input id="filter-student" type="text" placeholder="如：王同学" />
+        </label>
+        <label>关键词
+          <input id="filter-q" type="text" placeholder="标题搜索" />
+        </label>
+        <label class="check">
+          <input id="filter-overdue" type="checkbox" />
+          仅逾期
+        </label>
+      </div>
+
+      <p class="meta" id="list-meta">加载中…</p>
+      <div id="task-list" class="task-list"></div>
+    </section>
+
     <section class="panel" id="result-panel" hidden>
-      <h2>创建结果</h2>
+      <h2>最近操作结果</h2>
       <pre id="result-box" class="result"></pre>
     </section>
 
@@ -67,6 +99,7 @@
       <ul>
         <li><a href="/docs">OpenAPI /docs</a></li>
         <li><a href="/api/health">/api/health</a></li>
+        <li><a href="/api/tasks">/api/tasks</a></li>
       </ul>
     </section>
   </main>

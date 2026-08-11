@@ -14,6 +14,6 @@ def health_check() -> dict:
     return {
         "status": "ok",
         "service": "Edu-Agent",
-        "step": 4,
-        "message": "任务创建功能已就绪",
+        "step": 5,
+        "message": "任务存储增强已就绪（列表/更新/状态流转）",
     }

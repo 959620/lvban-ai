@@ -2,7 +2,7 @@
 
 面向艺术留学教务老师的个人 Agent：用自然语言创建跟进任务、定时提醒、学生档案管理，并预留企业微信通知。
 
-> 当前进度：**Step 4 任务创建已完成**（解析预览 → 确认入库 → 自动生成提醒计划）。
+> 当前进度：**Step 5 任务存储增强已完成**（列表筛选 / 更新 / 完成·取消联动提醒）。
 
 ---
 
@@ -86,6 +86,33 @@ curl -s -X POST http://127.0.0.1:8000/api/tasks/parse-create \
 
 ---
 
+## Step 5：如何测试任务存储
+
+### 1）网页
+
+1. 创建任务后，下方「任务列表」自动刷新
+2. 用状态 / 学生 / 关键词 / 仅逾期筛选
+3. 点「完成」或「取消」，未发送提醒应变为 `skipped` / `cancelled`
+
+### 2）API
+
+```bash
+# 列表 + 筛选
+curl -s 'http://127.0.0.1:8000/api/tasks?student_name=李&status=pending'
+
+# 更新截止时间（会重建提醒）
+curl -s -X PATCH http://127.0.0.1:8000/api/tasks/1 \
+  -H 'Content-Type: application/json' \
+  -d '{"due_at":"2026-08-25T15:00:00","priority":"high"}'
+
+# 完成任务（未发送提醒 → skipped）
+curl -s -X PATCH http://127.0.0.1:8000/api/tasks/1/status \
+  -H 'Content-Type: application/json' \
+  -d '{"status":"done"}'
+```
+
+---
+
 ## 开发路线
 
 | Step | 内容 | 状态 |
@@ -94,7 +121,7 @@ curl -s -X POST http://127.0.0.1:8000/api/tasks/parse-create \
 | 2 | 数据库设计 | ✅ |
 | 3 | 项目目录 | ✅ |
 | 4 | 任务创建功能 | ✅ |
-| 5 | 任务存储增强（列表/更新/状态流转） | 待做 |
+| 5 | 任务存储增强（列表/更新/状态流转） | ✅ |
 | 6 | 定时提醒 | 待做 |
 | 7 | AI 自然语言解析（OpenAI） | 待做 |
 | 8 | 通知模块完善（本地+邮件） | 待做 |

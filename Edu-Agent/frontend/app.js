@@ -1,5 +1,7 @@
 /**
- * Step 4 前端：自然语言解析预览 → 确认创建 / 一键创建
+ * Step 4–5 前端：
+ * - 自然语言解析预览 → 确认创建 / 一键创建
+ * - 任务列表筛选、完成、取消、开始跟进
  */
 
 const $ = (id) => document.getElementById(id);
@@ -14,10 +16,16 @@ function toDatetimeLocalValue(isoOrNull) {
 
 function fromDatetimeLocalValue(value) {
   if (!value) return null;
-  // datetime-local 无时区；按本地时间解释后转 ISO
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return null;
   return d.toISOString();
+}
+
+function formatDue(iso) {
+  if (!iso) return "无截止时间";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleString("zh-CN", { hour12: false });
 }
 
 function fillPreview(parsed) {
@@ -33,6 +41,69 @@ function fillPreview(parsed) {
 function showResult(data) {
   $("result-panel").hidden = false;
   $("result-box").textContent = JSON.stringify(data, null, 2);
+}
+
+function reminderSummary(reminders) {
+  if (!reminders || !reminders.length) return "无提醒";
+  const scheduled = reminders.filter((r) => r.status === "scheduled").length;
+  return `${reminders.length} 条提醒（待发送 ${scheduled}）`;
+}
+
+function renderTasks(payload) {
+  const box = $("task-list");
+  const items = payload.items || [];
+  $("list-meta").textContent = `共 ${payload.total || 0} 条`;
+
+  if (!items.length) {
+    box.innerHTML = `<p class="empty">暂无任务，先在上方创建一条吧。</p>`;
+    return;
+  }
+
+  box.innerHTML = items
+    .map((task) => {
+      const overdue =
+        task.due_at &&
+        ["pending", "in_progress"].includes(task.status) &&
+        new Date(task.due_at).getTime() < Date.now();
+      return `
+      <article class="task-item" data-id="${task.id}">
+        <div class="task-main">
+          <div class="task-title-row">
+            <strong>${escapeHtml(task.title)}</strong>
+            <span class="badge status-${task.status}">${task.status}</span>
+            ${overdue ? `<span class="badge overdue">逾期</span>` : ""}
+          </div>
+          <div class="task-meta">
+            <span>${escapeHtml(task.student_name || "未关联学生")}</span>
+            <span>${escapeHtml(task.priority)}</span>
+            <span>${escapeHtml(formatDue(task.due_at))}</span>
+            <span>${escapeHtml(reminderSummary(task.reminders))}</span>
+          </div>
+        </div>
+        <div class="task-actions">
+          ${
+            task.status === "pending"
+              ? `<button type="button" class="btn tiny" data-action="in_progress">开始</button>`
+              : ""
+          }
+          ${
+            ["pending", "in_progress"].includes(task.status)
+              ? `<button type="button" class="btn tiny primary" data-action="done">完成</button>
+                 <button type="button" class="btn tiny danger" data-action="cancelled">取消</button>`
+              : `<button type="button" class="btn tiny" data-action="pending">重新打开</button>`
+          }
+        </div>
+      </article>`;
+    })
+    .join("");
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
 }
 
 async function parsePreview() {
@@ -78,6 +149,7 @@ async function confirmCreate() {
     return;
   }
   showResult(await res.json());
+  await loadTasks();
 }
 
 async function quickCreate() {
@@ -98,13 +170,65 @@ async function quickCreate() {
   const data = await res.json();
   fillPreview(data.parsed);
   showResult(data);
+  await loadTasks();
+}
+
+async function loadTasks() {
+  const params = new URLSearchParams();
+  const status = $("filter-status").value;
+  const student = $("filter-student").value.trim();
+  const q = $("filter-q").value.trim();
+  if (status) params.set("status", status);
+  if (student) params.set("student_name", student);
+  if (q) params.set("q", q);
+  if ($("filter-overdue").checked) params.set("overdue", "true");
+
+  const res = await fetch(`/api/tasks?${params.toString()}`);
+  if (!res.ok) {
+    $("list-meta").textContent = "加载失败";
+    return;
+  }
+  renderTasks(await res.json());
+}
+
+async function setStatus(taskId, status) {
+  const res = await fetch(`/api/tasks/${taskId}/status`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
+  });
+  if (!res.ok) {
+    alert("状态更新失败：" + (await res.text()));
+    return;
+  }
+  showResult(await res.json());
+  await loadTasks();
 }
 
 $("btn-parse").addEventListener("click", () => parsePreview().catch(console.error));
 $("btn-confirm").addEventListener("click", () => confirmCreate().catch(console.error));
 $("btn-quick").addEventListener("click", () => quickCreate().catch(console.error));
+$("btn-refresh").addEventListener("click", () => loadTasks().catch(console.error));
 
-// 示例填充，方便演示
+["filter-status", "filter-student", "filter-q", "filter-overdue"].forEach((id) => {
+  $(id).addEventListener("change", () => loadTasks().catch(console.error));
+  if ($(id).tagName === "INPUT" && $(id).type === "text") {
+    $(id).addEventListener("keydown", (e) => {
+      if (e.key === "Enter") loadTasks().catch(console.error);
+    });
+  }
+});
+
+$("task-list").addEventListener("click", (event) => {
+  const btn = event.target.closest("button[data-action]");
+  if (!btn) return;
+  const item = btn.closest(".task-item");
+  if (!item) return;
+  setStatus(Number(item.dataset.id), btn.dataset.action).catch(console.error);
+});
+
 if (!$("nl-input").value) {
   $("nl-input").value = "8月20日下午3点提醒我联系学生王同学确认作品集修改情况";
 }
+
+loadTasks().catch(console.error);
