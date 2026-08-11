@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=https://schema.zeabur.app/template.json
+apiVersion: zeabur.com/v1
+kind: Template
+metadata:
+  name: Edu-Agent
+spec:
+  description: |
+    AI 个人教务助手 — 自然语言建任务、定时提醒、学生跟进。
+  tags:
+    - Tool
+    - API
+  variables:
+    - key: PUBLIC_DOMAIN
+      type: DOMAIN
+      name: 访问域名
+      description: 例如 edu-agent，将生成 https://edu-agent.zeabur.app
+  readme: |
+    # Edu-Agent
+
+    部署后访问首页创建任务，接口文档见 `/docs`，健康检查 `/api/health`。
+
+    可选环境变量（部署后在 Dashboard → Variables 添加）：
+    - `OPENAI_API_KEY` — AI 解析
+    - `NOTIFY_EMAIL` / `NOTIFY_WECOM` — 通知开关
+  services:
+    - name: edu-agent
+      template: GIT
+      domainKey: PUBLIC_DOMAIN
+      spec:
+        source:
+          source: GITHUB
+          repo: 1321162105
+          branch: master
+        volumes:
+          - id: data
+            dir: /app/data
+        env:
+          DATABASE_URL:
+            default: sqlite:////app/data/edu_agent.db
+          APP_ENV:
+            default: production
+          DEBUG:
+            default: "false"
+          SCHEDULER_ENABLED:
+            default: "true"
+
+localization:
+  zh-CN:
+    description: |
+      AI 个人教务助手 — 自然语言建任务、定时提醒、学生跟进。
+    variables:
+      - key: PUBLIC_DOMAIN
+        name: 访问域名
+        description: 例如 edu-agent，将生成 https://edu-agent.zeabur.app
+    readme: |
+      # Edu-Agent
+
+      部署后打开域名即可使用，无需本地终端。
