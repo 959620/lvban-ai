@@ -3,8 +3,7 @@
 
 设计原因：
 - 统一 NotificationChannel 协议，业务只依赖抽象
-- 第一阶段：local / email
-- 第二阶段：wecom 预留，打开开关即可挂载
+- 已实现：local / email / wecom（Webhook 或应用消息）
 """
 
 from app.notification.base import NotificationChannel, NotificationPayload

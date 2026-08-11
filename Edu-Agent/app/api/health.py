@@ -18,8 +18,8 @@ def health_check() -> dict:
     return {
         "status": "ok",
         "service": "Edu-Agent",
-        "step": 8,
-        "message": "本地 + 邮件通知已就绪（邮件支持 dry-run）",
+        "step": 9,
+        "message": "企业微信通知已接入（Webhook / 应用消息 / dry-run）",
         "scheduler": scheduler_status(),
         "parser": parser_status(),
         "channels": channels_status(),

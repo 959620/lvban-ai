@@ -213,6 +213,7 @@ $("btn-scan").addEventListener("click", () => runScan().catch(console.error));
 $("btn-refresh-logs").addEventListener("click", () => loadNotifications().catch(console.error));
 $("btn-test-local").addEventListener("click", () => testChannel("local").catch(console.error));
 $("btn-test-email").addEventListener("click", () => testChannel("email").catch(console.error));
+$("btn-test-wecom").addEventListener("click", () => testChannel("wecom").catch(console.error));
 
 ["filter-status", "filter-student", "filter-q", "filter-overdue"].forEach((id) => {
   $(id).addEventListener("change", () => loadTasks().catch(console.error));
@@ -301,7 +302,9 @@ async function loadChannelStatus() {
     const email = data.email?.enabled
       ? `email✓${data.email.dry_run ? "(dry-run)" : ""}`
       : "email✗";
-    const wecom = data.wecom?.enabled ? "wecom✓" : "wecom(预留)";
+    const wecom = data.wecom?.enabled
+      ? `wecom✓/${data.wecom.mode || "?"}${data.wecom.dry_run ? "(dry-run)" : ""}`
+      : "wecom✗";
     el.textContent = `通道：${local} / ${email} / ${wecom}｜active=[${(data.active || []).join(", ")}]`;
   } catch (err) {
     console.warn(err);

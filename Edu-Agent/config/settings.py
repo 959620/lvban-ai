@@ -46,6 +46,7 @@ class Settings(BaseSettings):
     notify_email: bool = False
     notify_wecom: bool = False
     notify_email_dry_run: bool = False
+    notify_wecom_dry_run: bool = False
 
     # 邮件
     smtp_host: str = ""
@@ -57,11 +58,15 @@ class Settings(BaseSettings):
     smtp_use_tls: bool = True
     smtp_use_ssl: bool = False
 
-    # 企业微信（预留）
+    # 企业微信
     wecom_webhook_url: str = ""
     wecom_corp_id: str = ""
     wecom_agent_id: str = ""
     wecom_secret: str = ""
+    wecom_touser: str = "@all"
+    wecom_msg_type: str = "markdown"  # text | markdown
+    wecom_api_base: str = "https://qyapi.weixin.qq.com"
+    wecom_timeout_seconds: float = 15.0
 
     # 调度
     scheduler_enabled: bool = True

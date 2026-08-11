@@ -2,7 +2,7 @@
 
 面向艺术留学教务老师的个人 Agent：用自然语言创建跟进任务、定时提醒、学生档案管理，并预留企业微信通知。
 
-> 当前进度：**Step 8 通知模块已完善**（本地通知 + SMTP 邮件，支持 dry-run 演练）。
+> 当前进度：**Step 9 完成** — 企业微信通知已接入（Webhook / 应用消息 / dry-run），MVP 全流程闭环。
 
 ---
 
@@ -228,6 +228,50 @@ SMTP_USE_TLS=true
 
 ---
 
+## Step 9：如何测试企业微信通知
+
+### 1）Dry-run（无需真实企业微信）
+
+`.env`：
+
+```env
+NOTIFY_WECOM=true
+NOTIFY_WECOM_DRY_RUN=true
+WECOM_WEBHOOK_URL=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=your-key
+WECOM_MSG_TYPE=markdown
+```
+
+```bash
+.venv/bin/python scripts/test_wecom_step9.py
+curl -s -X POST http://127.0.0.1:8000/api/notifications/test \
+  -H 'Content-Type: application/json' \
+  -d '{"channel":"wecom","title":"企微测试","body":"跟进王同学作品集"}'
+ls data/wecom_outbox/
+```
+
+### 2）群机器人 Webhook（推荐教务群）
+
+```env
+NOTIFY_WECOM=true
+NOTIFY_WECOM_DRY_RUN=false
+WECOM_WEBHOOK_URL=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxx
+```
+
+### 3）应用消息 API
+
+```env
+NOTIFY_WECOM=true
+NOTIFY_WECOM_DRY_RUN=false
+WECOM_CORP_ID=wwxxxx
+WECOM_AGENT_ID=1000002
+WECOM_SECRET=xxxx
+WECOM_TOUSER=@all
+```
+
+开启后，新建任务会为 wecom 通道同步生成提醒计划。
+
+---
+
 ## 开发路线
 
 | Step | 内容 | 状态 |
@@ -240,7 +284,7 @@ SMTP_USE_TLS=true
 | 6 | 定时提醒 | ✅ |
 | 7 | AI 自然语言解析（OpenAI） | ✅ |
 | 8 | 通知模块完善（本地+邮件） | ✅ |
-| 9 | 企业微信接口预留/接通 | 待做 |
+| 9 | 企业微信接口预留/接通 | ✅ |
 
 ---
 

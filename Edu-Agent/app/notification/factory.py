@@ -9,6 +9,7 @@ from __future__ import annotations
 from app.notification.base import NotificationChannel
 from app.notification.email import EmailNotifier
 from app.notification.local import LocalNotifier
+from app.notification.wecom import WeComNotifier
 from config.settings import Settings, get_settings
 
 
@@ -23,10 +24,8 @@ def build_notifiers(settings: Settings | None = None) -> list[NotificationChanne
     if settings.notify_email:
         channels.append(EmailNotifier(settings))
 
-    # Step 9:
-    # if settings.notify_wecom:
-    #     from app.notification.wecom import WeComNotifier
-    #     channels.append(WeComNotifier())
+    if settings.notify_wecom:
+        channels.append(WeComNotifier(settings))
 
     return channels
 
@@ -48,6 +47,15 @@ def enabled_channel_names(settings: Settings | None = None) -> list[str]:
     return [c.name for c in build_notifiers(settings)]
 
 
+def _mask_secret(value: str, keep: int = 4) -> str | None:
+    text = (value or "").strip()
+    if not text:
+        return None
+    if len(text) <= keep:
+        return "***"
+    return text[:keep] + "***"
+
+
 def channels_status(settings: Settings | None = None) -> dict:
     """
     通道就绪状态（供前端 / 健康检查）。
@@ -60,6 +68,16 @@ def channels_status(settings: Settings | None = None) -> dict:
     if email_to and "@" in email_to:
         name, domain = email_to.split("@", 1)
         masked_to = (name[:2] + "***@" + domain) if name else "***@" + domain
+
+    wecom = WeComNotifier(settings) if settings.notify_wecom else None
+    wecom_mode = wecom.mode if wecom else "disabled"
+    wecom_ready = bool(
+        settings.notify_wecom
+        and (
+            settings.notify_wecom_dry_run
+            or wecom_mode in {"webhook", "app"}
+        )
+    )
 
     return {
         "local": {
@@ -82,8 +100,18 @@ def channels_status(settings: Settings | None = None) -> dict:
         },
         "wecom": {
             "enabled": settings.notify_wecom,
-            "ready": False,
-            "reserved": True,
+            "dry_run": settings.notify_wecom_dry_run,
+            "mode": wecom_mode,
+            "msg_type": settings.wecom_msg_type,
+            "webhook_configured": bool((settings.wecom_webhook_url or "").strip()),
+            "app_configured": bool(
+                (settings.wecom_corp_id or "").strip()
+                and (settings.wecom_agent_id or "").strip()
+                and (settings.wecom_secret or "").strip()
+            ),
+            "corp_id": _mask_secret(settings.wecom_corp_id),
+            "ready": wecom_ready,
+            "reserved": False,
         },
         "active": enabled_channel_names(settings),
     }

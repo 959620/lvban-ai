@@ -1,9 +1,9 @@
 """
-通知相关 API（Step 6–8）。
+通知相关 API（Step 6–9）。
 
 - GET  /api/notifications              通知日志
 - GET  /api/notifications/channels     通道状态
-- POST /api/notifications/test         测试发送
+- POST /api/notifications/test         测试发送（local/email/wecom）
 - POST /api/notifications/run-once     立即扫描到期提醒
 - GET  /api/notifications/scheduler-status
 """
@@ -51,7 +51,7 @@ def test_notification(
     body: NotificationTestRequest,
     service: NotificationService = Depends(_service),
 ) -> NotificationTestResponse:
-    """向已启用通道发送测试通知（邮件可 dry-run）。"""
+    """向已启用通道发送测试通知（email/wecom 均可 dry-run）。"""
     return service.send_test(body)
 
 

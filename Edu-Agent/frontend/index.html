@@ -97,10 +97,11 @@
           <button type="button" id="btn-scan" class="btn primary">立即扫描提醒</button>
           <button type="button" id="btn-test-local" class="btn secondary">测试本地通知</button>
           <button type="button" id="btn-test-email" class="btn secondary">测试邮件</button>
+          <button type="button" id="btn-test-wecom" class="btn secondary">测试企业微信</button>
           <button type="button" id="btn-refresh-logs" class="btn secondary">刷新日志</button>
         </div>
       </div>
-      <p class="hint">调度器默认每 60 秒扫描；邮件可在 .env 开启 NOTIFY_EMAIL / NOTIFY_EMAIL_DRY_RUN。</p>
+      <p class="hint">企业微信可配置 Webhook 或应用消息；本地可用 NOTIFY_WECOM_DRY_RUN 演练。</p>
       <p class="meta" id="channel-status-meta">通道状态加载中…</p>
       <p class="meta" id="notify-meta">加载中…</p>
       <div id="notify-list" class="notify-list"></div>
