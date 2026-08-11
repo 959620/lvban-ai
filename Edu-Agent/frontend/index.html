@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Edu-Agent 教务助手</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <p class="eyebrow">Edu-Agent</p>
+      <h1>AI 个人教务助手</h1>
+      <p class="lead">用自然语言创建跟进任务，确认后再入库</p>
+    </header>
+
+    <section class="panel">
+      <h2>创建任务</h2>
+      <label class="label" for="nl-input">自然语言描述</label>
+      <textarea
+        id="nl-input"
+        rows="4"
+        placeholder="例如：8月20日下午3点提醒我联系学生王同学确认作品集修改情况"
+      ></textarea>
+
+      <div class="actions">
+        <button type="button" id="btn-parse" class="btn secondary">先解析预览</button>
+        <button type="button" id="btn-quick" class="btn primary">一键创建</button>
+      </div>
+      <p class="hint">推荐先预览再确认。已配置 OPENAI_API_KEY 时走模型解析，否则自动规则兜底。</p>
+      <p class="meta" id="parser-status-meta"></p>
+    </section>
+
+    <section class="panel" id="preview-panel" hidden>
+      <h2>解析预览（可编辑）</h2>
+      <div class="form-grid">
+        <label>任务名称
+          <input id="f-title" type="text" />
+        </label>
+        <label>学生
+          <input id="f-student" type="text" placeholder="可空" />
+        </label>
+        <label>截止时间
+          <input id="f-due" type="datetime-local" />
+        </label>
+        <label>优先级
+          <select id="f-priority">
+            <option value="low">low</option>
+            <option value="medium" selected>medium</option>
+            <option value="high">high</option>
+            <option value="urgent">urgent</option>
+          </select>
+        </label>
+      </div>
+      <p class="meta" id="parse-meta"></p>
+      <div class="actions">
+        <button type="button" id="btn-confirm" class="btn primary">确认创建</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>任务列表</h2>
+        <button type="button" id="btn-refresh" class="btn secondary">刷新</button>
+      </div>
+
+      <div class="filters">
+        <label>状态
+          <select id="filter-status">
+            <option value="">全部</option>
+            <option value="pending">pending</option>
+            <option value="in_progress">in_progress</option>
+            <option value="done">done</option>
+            <option value="cancelled">cancelled</option>
+          </select>
+        </label>
+        <label>学生
+          <input id="filter-student" type="text" placeholder="如：王同学" />
+        </label>
+        <label>关键词
+          <input id="filter-q" type="text" placeholder="标题搜索" />
+        </label>
+        <label class="check">
+          <input id="filter-overdue" type="checkbox" />
+          仅逾期
+        </label>
+      </div>
+
+      <p class="meta" id="list-meta">加载中…</p>
+      <div id="task-list" class="task-list"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>提醒与通知</h2>
+        <div class="actions tight">
+          <button type="button" id="btn-scan" class="btn primary">立即扫描提醒</button>
+          <button type="button" id="btn-test-local" class="btn secondary">测试本地通知</button>
+          <button type="button" id="btn-test-email" class="btn secondary">测试邮件</button>
+          <button type="button" id="btn-test-wecom" class="btn secondary">测试企业微信</button>
+          <button type="button" id="btn-refresh-logs" class="btn secondary">刷新日志</button>
+        </div>
+      </div>
+      <p class="hint">企业微信可配置 Webhook 或应用消息；本地可用 NOTIFY_WECOM_DRY_RUN 演练。</p>
+      <p class="meta" id="channel-status-meta">通道状态加载中…</p>
+      <p class="meta" id="notify-meta">加载中…</p>
+      <div id="notify-list" class="notify-list"></div>
+    </section>
+
+    <section class="panel" id="result-panel" hidden>
+      <h2>最近操作结果</h2>
+      <pre id="result-box" class="result"></pre>
+    </section>
+
+    <section class="panel muted">
+      <h2>接口</h2>
+      <ul>
+        <li><a href="/docs">OpenAPI /docs</a></li>
+        <li><a href="/api/health">/api/health</a></li>
+        <li><a href="/api/tasks">/api/tasks</a></li>
+        <li><a href="/api/notifications">/api/notifications</a></li>
+      </ul>
+    </section>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>
