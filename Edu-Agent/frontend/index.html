@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Edu-Agent 教务助手</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <p class="eyebrow">Edu-Agent</p>
+      <h1>AI 个人教务助手</h1>
+      <p class="lead">用自然语言创建跟进任务，确认后再入库</p>
+    </header>
+
+    <section class="panel">
+      <h2>创建任务</h2>
+      <label class="label" for="nl-input">自然语言描述</label>
+      <textarea
+        id="nl-input"
+        rows="4"
+        placeholder="例如：8月20日下午3点提醒我联系学生王同学确认作品集修改情况"
+      ></textarea>
+
+      <div class="actions">
+        <button type="button" id="btn-parse" class="btn secondary">先解析预览</button>
+        <button type="button" id="btn-quick" class="btn primary">一键创建</button>
+      </div>
+      <p class="hint">推荐先预览再确认，避免时间/学生名误解析。</p>
+    </section>
+
+    <section class="panel" id="preview-panel" hidden>
+      <h2>解析预览（可编辑）</h2>
+      <div class="form-grid">
+        <label>任务名称
+          <input id="f-title" type="text" />
+        </label>
+        <label>学生
+          <input id="f-student" type="text" placeholder="可空" />
+        </label>
+        <label>截止时间
+          <input id="f-due" type="datetime-local" />
+        </label>
+        <label>优先级
+          <select id="f-priority">
+            <option value="low">low</option>
+            <option value="medium" selected>medium</option>
+            <option value="high">high</option>
+            <option value="urgent">urgent</option>
+          </select>
+        </label>
+      </div>
+      <p class="meta" id="parse-meta"></p>
+      <div class="actions">
+        <button type="button" id="btn-confirm" class="btn primary">确认创建</button>
+      </div>
+    </section>
+
+    <section class="panel" id="result-panel" hidden>
+      <h2>创建结果</h2>
+      <pre id="result-box" class="result"></pre>
+    </section>
+
+    <section class="panel muted">
+      <h2>接口</h2>
+      <ul>
+        <li><a href="/docs">OpenAPI /docs</a></li>
+        <li><a href="/api/health">/api/health</a></li>
+      </ul>
+    </section>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>
