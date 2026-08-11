@@ -2,7 +2,7 @@
 
 面向艺术留学教务老师的个人 Agent：用自然语言创建跟进任务、定时提醒、学生档案管理，并预留企业微信通知。
 
-> 当前进度：**Step 7 AI 自然语言解析已接入**（OpenAI 优先，失败/无 Key 时规则兜底）。
+> 当前进度：**Step 8 通知模块已完善**（本地通知 + SMTP 邮件，支持 dry-run 演练）。
 
 ---
 
@@ -178,6 +178,56 @@ curl -s -X POST http://127.0.0.1:8000/api/tasks/parse \
 
 ---
 
+## Step 8：如何测试邮件通知
+
+### 1）Dry-run（推荐先做，无需真实 SMTP）
+
+`.env`：
+
+```env
+NOTIFY_LOCAL=true
+NOTIFY_EMAIL=true
+NOTIFY_EMAIL_DRY_RUN=true
+NOTIFY_EMAIL_TO=your@email.com
+SMTP_FROM=edu-agent@example.com
+```
+
+重启后：
+
+```bash
+curl -s http://127.0.0.1:8000/api/notifications/channels
+curl -s -X POST http://127.0.0.1:8000/api/notifications/test \
+  -H 'Content-Type: application/json' \
+  -d '{"channel":"email","title":"邮件测试","body":"hello edu-agent"}'
+ls data/email_outbox/
+```
+
+期望：返回 success，并在 `data/email_outbox/` 生成 `.eml` 文件。
+
+本地脚本：
+
+```bash
+.venv/bin/python scripts/test_email_step8.py
+```
+
+### 2）真实 SMTP
+
+```env
+NOTIFY_EMAIL=true
+NOTIFY_EMAIL_DRY_RUN=false
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=...
+SMTP_PASSWORD=...
+SMTP_FROM=noreply@example.com
+NOTIFY_EMAIL_TO=teacher@example.com
+SMTP_USE_TLS=true
+```
+
+创建带截止时间的任务后，系统会为 **local + email** 各生成一套提醒；到期扫描时分别发送。
+
+---
+
 ## 开发路线
 
 | Step | 内容 | 状态 |
@@ -189,7 +239,7 @@ curl -s -X POST http://127.0.0.1:8000/api/tasks/parse \
 | 5 | 任务存储增强（列表/更新/状态流转） | ✅ |
 | 6 | 定时提醒 | ✅ |
 | 7 | AI 自然语言解析（OpenAI） | ✅ |
-| 8 | 通知模块完善（本地+邮件） | 待做 |
+| 8 | 通知模块完善（本地+邮件） | ✅ |
 | 9 | 企业微信接口预留/接通 | 待做 |
 
 ---

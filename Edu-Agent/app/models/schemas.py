@@ -156,3 +156,19 @@ class ReminderScanResult(BaseModel):
     sent: int
     failed: int
     skipped: int
+
+
+class NotificationTestRequest(BaseModel):
+    """手动测试通知。"""
+
+    channel: str | None = Field(
+        default=None,
+        description="指定通道 local/email；为空则向所有已启用通道发送",
+    )
+    title: str | None = None
+    body: str | None = None
+
+
+class NotificationTestResponse(BaseModel):
+    ok: bool
+    results: list[dict]

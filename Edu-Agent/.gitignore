@@ -11,6 +11,8 @@ __pycache__/
 # 本地数据库与运行数据
 data/*.db
 data/*.db-*
+data/email_outbox/
+data/local_notifications.log
 !data/.gitkeep
 
 # IDE / 系统

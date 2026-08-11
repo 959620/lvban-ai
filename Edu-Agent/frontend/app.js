@@ -211,6 +211,8 @@ $("btn-quick").addEventListener("click", () => quickCreate().catch(console.error
 $("btn-refresh").addEventListener("click", () => loadTasks().catch(console.error));
 $("btn-scan").addEventListener("click", () => runScan().catch(console.error));
 $("btn-refresh-logs").addEventListener("click", () => loadNotifications().catch(console.error));
+$("btn-test-local").addEventListener("click", () => testChannel("local").catch(console.error));
+$("btn-test-email").addEventListener("click", () => testChannel("email").catch(console.error));
 
 ["filter-status", "filter-student", "filter-q", "filter-overdue"].forEach((id) => {
   $(id).addEventListener("change", () => loadTasks().catch(console.error));
@@ -267,7 +269,43 @@ async function runScan() {
   }
   const stats = await res.json();
   showResult(stats);
-  await Promise.all([loadTasks(), loadNotifications()]);
+  await Promise.all([loadTasks(), loadNotifications(), loadChannelStatus()]);
+}
+
+async function testChannel(channel) {
+  const res = await fetch("/api/notifications/test", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      channel,
+      title: `Edu-Agent ${channel} 测试`,
+      body: "这是一条来自教务助手的测试通知。",
+    }),
+  });
+  const data = await res.json();
+  showResult(data);
+  if (!data.ok) {
+    alert("测试未完全成功，请查看结果与 .env 配置");
+  }
+  await Promise.all([loadNotifications(), loadChannelStatus()]);
+}
+
+async function loadChannelStatus() {
+  try {
+    const res = await fetch("/api/notifications/channels");
+    if (!res.ok) return;
+    const data = await res.json();
+    const el = $("channel-status-meta");
+    if (!el) return;
+    const local = data.local?.enabled ? "local✓" : "local✗";
+    const email = data.email?.enabled
+      ? `email✓${data.email.dry_run ? "(dry-run)" : ""}`
+      : "email✗";
+    const wecom = data.wecom?.enabled ? "wecom✓" : "wecom(预留)";
+    el.textContent = `通道：${local} / ${email} / ${wecom}｜active=[${(data.active || []).join(", ")}]`;
+  } catch (err) {
+    console.warn(err);
+  }
 }
 
 async function loadParserStatus() {
@@ -292,5 +330,6 @@ if (!$("nl-input").value) {
 }
 
 loadParserStatus().catch(console.error);
+loadChannelStatus().catch(console.error);
 loadTasks().catch(console.error);
 loadNotifications().catch(console.error);

@@ -16,7 +16,7 @@ from app.models.notification_log import NotificationLog
 from app.models.reminder import Reminder
 from app.models.task import Task
 from app.notification.base import NotificationChannel, NotificationPayload
-from app.notification.factory import build_notifiers, get_notifier_by_name
+from app.notification.factory import build_notifiers, enabled_channel_names, get_notifier_by_name
 from app.services.message_templates import render_reminder_message
 
 logger = logging.getLogger("edu_agent.reminder")
@@ -38,34 +38,43 @@ class ReminderService:
         self,
         task: Task,
         offsets_minutes: list[int] | None = None,
-        channel: str = "local",
+        channel: str | None = None,
+        channels: list[str] | None = None,
     ) -> list[Reminder]:
         """
         根据 due_at 生成相对提醒。
 
-        无 due_at 时不创建提醒；仅创建 remind_at > now 的提醒。
+        Step 8：默认按已启用通知通道各生成一套提醒（local / email ...）。
+        仍兼容单 channel 参数。
         """
         if task.due_at is None:
             return []
+
+        if channels is None:
+            if channel:
+                channels = [channel]
+            else:
+                channels = enabled_channel_names() or ["local"]
 
         offsets = offsets_minutes if offsets_minutes is not None else DEFAULT_OFFSETS_MINUTES
         now = datetime.now()
         created: list[Reminder] = []
 
-        for offset in offsets:
-            remind_at = task.due_at - timedelta(minutes=offset)
-            if remind_at <= now:
-                continue
-            reminder = Reminder(
-                task_id=task.id,
-                remind_at=remind_at,
-                remind_type="relative",
-                offset_minutes=offset,
-                status="scheduled",
-                channel=channel,
-            )
-            self.db.add(reminder)
-            created.append(reminder)
+        for ch in channels:
+            for offset in offsets:
+                remind_at = task.due_at - timedelta(minutes=offset)
+                if remind_at <= now:
+                    continue
+                reminder = Reminder(
+                    task_id=task.id,
+                    remind_at=remind_at,
+                    remind_type="relative",
+                    offset_minutes=offset,
+                    status="scheduled",
+                    channel=ch,
+                )
+                self.db.add(reminder)
+                created.append(reminder)
 
         self.db.flush()
         return created
@@ -86,7 +95,8 @@ class ReminderService:
         self,
         task: Task,
         offsets_minutes: list[int] | None = None,
-        channel: str = "local",
+        channel: str | None = None,
+        channels: list[str] | None = None,
     ) -> list[Reminder]:
         """截止时间变更后：取消旧 scheduled，再按新 due_at 生成。"""
         self.cancel_pending_for_task(task.id, reason="cancelled")
@@ -94,6 +104,7 @@ class ReminderService:
             task,
             offsets_minutes=offsets_minutes,
             channel=channel,
+            channels=channels,
         )
 
     def list_by_task(self, task_id: int) -> list[Reminder]:

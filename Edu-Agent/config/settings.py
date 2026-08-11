@@ -45,6 +45,7 @@ class Settings(BaseSettings):
     notify_local: bool = True
     notify_email: bool = False
     notify_wecom: bool = False
+    notify_email_dry_run: bool = False
 
     # 邮件
     smtp_host: str = ""
@@ -53,6 +54,8 @@ class Settings(BaseSettings):
     smtp_password: str = ""
     smtp_from: str = ""
     notify_email_to: str = ""
+    smtp_use_tls: bool = True
+    smtp_use_ssl: bool = False
 
     # 企业微信（预留）
     wecom_webhook_url: str = ""
