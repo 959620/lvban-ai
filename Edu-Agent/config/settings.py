@@ -35,10 +35,11 @@ class Settings(BaseSettings):
     # 数据库
     database_url: str = f"sqlite:///{BASE_DIR / 'data' / 'edu_agent.db'}"
 
-    # OpenAI（预留）
+    # OpenAI（Step 7）
     openai_api_key: str = ""
     openai_base_url: str = "https://api.openai.com/v1"
     openai_model: str = "gpt-4o-mini"
+    openai_timeout_seconds: float = 30.0
 
     # 通知开关
     notify_local: bool = True

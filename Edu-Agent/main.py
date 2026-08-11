@@ -45,7 +45,7 @@ async def lifespan(_app: FastAPI):
 app = FastAPI(
     title=settings.app_name,
     description="AI 个人教务助手 Agent — 任务管理 / 提醒 / 学生跟进",
-    version="0.6.0-scheduler",
+    version="0.7.0-ai-parse",
     lifespan=lifespan,
 )
 

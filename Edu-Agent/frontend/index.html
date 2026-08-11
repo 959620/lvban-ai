@@ -27,7 +27,8 @@
         <button type="button" id="btn-parse" class="btn secondary">先解析预览</button>
         <button type="button" id="btn-quick" class="btn primary">一键创建</button>
       </div>
-      <p class="hint">推荐先预览再确认，避免时间/学生名误解析。</p>
+      <p class="hint">推荐先预览再确认。已配置 OPENAI_API_KEY 时走模型解析，否则自动规则兜底。</p>
+      <p class="meta" id="parser-status-meta"></p>
     </section>
 
     <section class="panel" id="preview-panel" hidden>

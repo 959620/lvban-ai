@@ -1,20 +1,26 @@
 """
 任务解析器。
 
-Step 4：规则解析已可用（提取学生、时间、优先级、任务名）
-Step 7：接入 OpenAI；无 Key 时仍回落到本规则实现
+Step 4：规则解析
+Step 7：OpenAI 优先；失败/无 Key → 规则兜底
 """
 
 from __future__ import annotations
 
+import json
+import logging
 import re
 from datetime import datetime, timedelta
 from typing import Any, Protocol
 from zoneinfo import ZoneInfo
 
+from app.ai.normalize import normalize_parsed_result
+from app.ai.openai_client import OpenAIClient, OpenAIClientError
+from app.ai.prompts import TASK_PARSE_SYSTEM_PROMPT, build_task_parse_user_prompt
 from config.settings import get_settings
 
-# 教务场景常见时区；后续可配置化
+logger = logging.getLogger("edu_agent.parser")
+
 LOCAL_TZ = ZoneInfo("Asia/Shanghai")
 
 PRIORITY_KEYWORDS = {
@@ -23,7 +29,6 @@ PRIORITY_KEYWORDS = {
     "low": ["不急", "有空", "低优先级", "低优"],
 }
 
-# 学生名模式：优先「学生X同学」，再回落短「X同学」
 STUDENT_PATTERNS = [
     re.compile(r"(?:学生|学员)\s*([\u4e00-\u9fffA-Za-z]{1,12}同学)"),
     re.compile(r"(?:联系|催|跟进)\s*([\u4e00-\u9fffA-Za-z]{1,12}同学)"),
@@ -37,18 +42,11 @@ class TaskParser(Protocol):
     """自然语言 → 结构化任务字段。"""
 
     def parse(self, text: str) -> dict[str, Any]:
-        """解析用户输入，返回标准化字典。"""
         ...
 
 
 class RuleBasedTaskParser:
-    """
-    规则兜底解析。
-
-    为什么 Step 4 先做规则版：
-    - 无 OpenAI Key 也能演示「自然语言 → 结构化」闭环
-    - 作为 Step 7 模型失败时的安全网
-    """
+    """规则兜底解析：无 Key / 模型失败时保证可用。"""
 
     def parse(self, text: str) -> dict[str, Any]:
         raw = (text or "").strip()
@@ -61,13 +59,18 @@ class RuleBasedTaskParser:
         if student and deadline:
             confidence = "high"
 
-        return {
-            "task": title,
-            "deadline": deadline.isoformat() if deadline else None,
-            "student": student,
-            "priority": priority,
-            "parse_confidence": confidence,
-        }
+        return normalize_parsed_result(
+            {
+                "task": title,
+                "deadline": deadline,
+                "student": student,
+                "priority": priority,
+                "parse_confidence": confidence,
+            },
+            source_text=raw,
+            parse_source="rule",
+            default_confidence=confidence,
+        )
 
     def _extract_student(self, text: str) -> str | None:
         candidates: list[str] = []
@@ -80,7 +83,6 @@ class RuleBasedTaskParser:
                     candidates.append(name)
         if not candidates:
             return None
-        # 取最短合理名（避免吞掉前后文）
         return sorted(candidates, key=len)[0]
 
     def _extract_priority(self, text: str) -> str:
@@ -93,7 +95,6 @@ class RuleBasedTaskParser:
     def _extract_deadline(self, text: str) -> datetime | None:
         now = datetime.now(LOCAL_TZ)
 
-        # ISO：2026-09-01 15:00 / 2026-09-01T15:00
         iso = re.search(r"(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2}):(\d{2}))?", text)
         if iso:
             year, month, day = int(iso.group(1)), int(iso.group(2)), int(iso.group(3))
@@ -101,7 +102,6 @@ class RuleBasedTaskParser:
             minute = int(iso.group(5)) if iso.group(5) else 0
             return datetime(year, month, day, hour, minute)
 
-        # 中文日期：8月20日下午3点 / 2026年8月20日15:00
         ymd = re.search(
             r"(?:(\d{4})[年/-])?(\d{1,2})[月/-](\d{1,2})[日号]?"
             r"(?:\s*(上午|下午|早上|晚上))?"
@@ -124,7 +124,6 @@ class RuleBasedTaskParser:
                 candidate = datetime(year + 1, month, day, hour, minute)
             return candidate
 
-        # 相对日期：明天 / 后天 / 下周
         hour, minute = 9, 0
         hm = re.search(
             r"(上午|下午|早上|晚上)?\s*(\d{1,2})\s*[点时:：](?:\s*(\d{1,2})\s*分?)?",
@@ -143,7 +142,6 @@ class RuleBasedTaskParser:
         elif "明天" in text or "明日" in text:
             base_day = now.date() + timedelta(days=1)
         elif "下周" in text:
-            # 简单策略：下周一（Step 7 可用模型精化）
             days_ahead = 7 - now.weekday()
             if days_ahead <= 0:
                 days_ahead += 7
@@ -154,9 +152,7 @@ class RuleBasedTaskParser:
         return None
 
     def _extract_title(self, text: str, student: str | None) -> str:
-        """去掉时间与提醒套话，留下任务核心描述。"""
         cleaned = text
-        # 先去日期时间，再去提醒套话（套话常在日期后面）
         cleaned = re.sub(r"\d{4}-\d{1,2}-\d{1,2}(?:[ T]\d{1,2}:\d{2})?", "", cleaned)
         cleaned = re.sub(
             r"(?:(\d{4})[年/-])?\d{1,2}[月/-]\d{1,2}[日号]?"
@@ -180,20 +176,83 @@ class RuleBasedTaskParser:
 
 
 class OpenAITaskParser:
-    """OpenAI 解析实现（Step 7；当前占位并回落规则）。"""
+    """
+    OpenAI 解析实现。
 
-    def __init__(self, fallback: RuleBasedTaskParser | None = None) -> None:
+    失败策略：任意异常 / JSON 非法 → 回落 RuleBasedTaskParser，
+    并标记 parse_source=openai_fallback，保证教务录入不被中断。
+    """
+
+    def __init__(
+        self,
+        fallback: RuleBasedTaskParser | None = None,
+        client: OpenAIClient | None = None,
+    ) -> None:
         self.fallback = fallback or RuleBasedTaskParser()
+        self.client = client or OpenAIClient()
 
     def parse(self, text: str) -> dict[str, Any]:
-        # Step 7 将调用 OpenAI；当前先回落，保证创建链路可测
-        return self.fallback.parse(text)
+        raw = (text or "").strip()
+        try:
+            content = self.client.chat_json(
+                system_prompt=TASK_PARSE_SYSTEM_PROMPT,
+                user_prompt=build_task_parse_user_prompt(raw),
+            )
+            data = _extract_json_object(content)
+            return normalize_parsed_result(
+                data,
+                source_text=raw,
+                parse_source="openai",
+                default_confidence="high",
+            )
+        except (OpenAIClientError, json.JSONDecodeError, ValueError, TypeError) as exc:
+            logger.warning("OpenAI 解析失败，回落规则解析: %s", exc)
+            result = self.fallback.parse(raw)
+            result["parse_source"] = "openai_fallback"
+            # 回落后置信度不超过 medium，提示用户确认
+            if result.get("parse_confidence") == "high":
+                result["parse_confidence"] = "medium"
+            return result
+
+
+def _extract_json_object(content: str) -> dict[str, Any]:
+    """从模型输出中提取 JSON（兼容 ```json 包裹）。"""
+    text = content.strip()
+    fence = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", text, re.IGNORECASE)
+    if fence:
+        text = fence.group(1).strip()
+
+    try:
+        data = json.loads(text)
+    except json.JSONDecodeError:
+        # 再尝试截取第一个 {...}
+        match = re.search(r"\{[\s\S]*\}", text)
+        if not match:
+            raise
+        data = json.loads(match.group(0))
+
+    if not isinstance(data, dict):
+        raise ValueError("模型输出不是 JSON 对象")
+    return data
 
 
 def get_task_parser() -> TaskParser:
     """根据配置选择解析器。"""
     settings = get_settings()
     rule = RuleBasedTaskParser()
-    if settings.openai_api_key:
+    if settings.openai_api_key and settings.openai_api_key.strip():
         return OpenAITaskParser(fallback=rule)
     return rule
+
+
+def parser_status() -> dict[str, Any]:
+    """供健康检查 / 前端展示当前解析引擎。"""
+    settings = get_settings()
+    has_key = bool(settings.openai_api_key and settings.openai_api_key.strip())
+    return {
+        "engine": "openai" if has_key else "rule",
+        "openai_configured": has_key,
+        "openai_model": settings.openai_model if has_key else None,
+        "openai_base_url": settings.openai_base_url if has_key else None,
+        "fallback": "rule",
+    }

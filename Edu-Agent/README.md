@@ -2,7 +2,7 @@
 
 面向艺术留学教务老师的个人 Agent：用自然语言创建跟进任务、定时提醒、学生档案管理，并预留企业微信通知。
 
-> 当前进度：**Step 6 定时提醒已完成**（APScheduler 扫描 → 本地通知 → 通知日志）。
+> 当前进度：**Step 7 AI 自然语言解析已接入**（OpenAI 优先，失败/无 Key 时规则兜底）。
 
 ---
 
@@ -139,6 +139,45 @@ curl -s http://127.0.0.1:8000/api/notifications/scheduler-status
 
 ---
 
+## Step 7：如何测试 AI 解析
+
+### 1）无 Key（默认）
+
+保持 `.env` 中 `OPENAI_API_KEY` 为空：
+
+```bash
+curl -s -X POST http://127.0.0.1:8000/api/tasks/parse \
+  -H 'Content-Type: application/json' \
+  -d '{"text":"下周提醒我催李同学提交作品集第二版"}'
+```
+
+期望：`parse_source=rule`，能提取学生/时间。
+
+### 2）配置 OpenAI
+
+在 `.env` 中填写：
+
+```env
+OPENAI_API_KEY=sk-...
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_MODEL=gpt-4o-mini
+```
+
+重启服务后：
+
+```bash
+curl -s http://127.0.0.1:8000/api/tasks/parser-status
+curl -s -X POST http://127.0.0.1:8000/api/tasks/parse \
+  -H 'Content-Type: application/json' \
+  -d '{"text":"下周三下午提醒我催李同学交作品集第二版，比较紧急"}'
+```
+
+期望：`parse_source=openai`；若模型失败则 `openai_fallback` 并仍返回可用结果。
+
+支持兼容 OpenAI 协议的网关：修改 `OPENAI_BASE_URL` 即可。
+
+---
+
 ## 开发路线
 
 | Step | 内容 | 状态 |
@@ -149,7 +188,7 @@ curl -s http://127.0.0.1:8000/api/notifications/scheduler-status
 | 4 | 任务创建功能 | ✅ |
 | 5 | 任务存储增强（列表/更新/状态流转） | ✅ |
 | 6 | 定时提醒 | ✅ |
-| 7 | AI 自然语言解析（OpenAI） | 待做 |
+| 7 | AI 自然语言解析（OpenAI） | ✅ |
 | 8 | 通知模块完善（本地+邮件） | 待做 |
 | 9 | 企业微信接口预留/接通 | 待做 |
 

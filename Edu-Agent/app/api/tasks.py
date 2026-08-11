@@ -8,6 +8,7 @@ Step 5：list / update / status（完成·取消联动提醒）
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
+from app.ai.parser import parser_status
 from app.database import get_db
 from app.models.schemas import (
     NaturalLanguageTaskRequest,
@@ -26,6 +27,12 @@ router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 def _service(db: Session = Depends(get_db)) -> TaskService:
     return TaskService(db)
+
+
+@router.get("/parser-status")
+def get_parser_status() -> dict:
+    """查看当前自然语言解析引擎（OpenAI 或规则兜底）。"""
+    return parser_status()
 
 
 @router.post("/parse", response_model=ParsedTaskPreview)

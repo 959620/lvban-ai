@@ -34,7 +34,7 @@ function fillPreview(parsed) {
   $("f-student").value = parsed.student || "";
   $("f-due").value = toDatetimeLocalValue(parsed.deadline);
   $("f-priority").value = parsed.priority || "medium";
-  $("parse-meta").textContent = `置信度：${parsed.parse_confidence || "low"}｜原文：${parsed.source_text || ""}`;
+  $("parse-meta").textContent = `引擎：${parsed.parse_source || "rule"}｜置信度：${parsed.parse_confidence || "low"}｜原文：${parsed.source_text || ""}`;
   window.__lastParsed = parsed;
 }
 
@@ -270,9 +270,27 @@ async function runScan() {
   await Promise.all([loadTasks(), loadNotifications()]);
 }
 
+async function loadParserStatus() {
+  try {
+    const res = await fetch("/api/tasks/parser-status");
+    if (!res.ok) return;
+    const data = await res.json();
+    const el = $("parser-status-meta");
+    if (!el) return;
+    if (data.openai_configured) {
+      el.textContent = `解析引擎：OpenAI（${data.openai_model}），失败时回落规则解析`;
+    } else {
+      el.textContent = "解析引擎：规则兜底（未配置 OPENAI_API_KEY）";
+    }
+  } catch (err) {
+    console.warn(err);
+  }
+}
+
 if (!$("nl-input").value) {
   $("nl-input").value = "8月20日下午3点提醒我联系学生王同学确认作品集修改情况";
 }
 
+loadParserStatus().catch(console.error);
 loadTasks().catch(console.error);
 loadNotifications().catch(console.error);

@@ -54,6 +54,7 @@ class TaskService:
             student=result.get("student"),
             priority=result.get("priority") or "medium",
             parse_confidence=result.get("parse_confidence") or "low",
+            parse_source=result.get("parse_source") or "rule",
             source_text=text,
         )
 

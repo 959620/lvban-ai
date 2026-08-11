@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field
 Priority = Literal["low", "medium", "high", "urgent"]
 TaskStatus = Literal["pending", "in_progress", "done", "cancelled"]
 ParseConfidence = Literal["high", "medium", "low", "manual"]
+ParseSource = Literal["openai", "rule", "openai_fallback"]
 
 
 class NaturalLanguageTaskRequest(BaseModel):
@@ -34,6 +35,7 @@ class ParsedTaskPreview(BaseModel):
     student: str | None = None
     priority: Priority = "medium"
     parse_confidence: ParseConfidence = "low"
+    parse_source: ParseSource = "rule"
     source_text: str
     reminder_offsets_minutes: list[int] = Field(
         default_factory=lambda: [1440, 120, 0],
