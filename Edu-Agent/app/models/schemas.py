@@ -124,3 +124,33 @@ class TaskListResponse(BaseModel):
 
     total: int
     items: list[TaskResponse]
+
+
+class NotificationLogResponse(BaseModel):
+    """通知审计日志。"""
+
+    id: int
+    reminder_id: int | None
+    student_id: int | None
+    channel: str
+    title: str
+    body: str
+    status: str
+    error_message: str | None = None
+    created_at: datetime | None = None
+
+    model_config = {"from_attributes": True}
+
+
+class NotificationLogListResponse(BaseModel):
+    total: int
+    items: list[NotificationLogResponse]
+
+
+class ReminderScanResult(BaseModel):
+    """手动/调度扫描结果。"""
+
+    scanned: int
+    sent: int
+    failed: int
+    skipped: int

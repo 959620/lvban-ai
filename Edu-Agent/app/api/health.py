@@ -1,10 +1,12 @@
 """
 健康检查接口。
 
-用途：确认服务已启动；后续可扩展为检查数据库 / 调度器状态。
+用途：确认服务已启动；附带调度器状态摘要。
 """
 
 from fastapi import APIRouter
+
+from app.scheduler.jobs import scheduler_status
 
 router = APIRouter(tags=["health"])
 
@@ -14,6 +16,7 @@ def health_check() -> dict:
     return {
         "status": "ok",
         "service": "Edu-Agent",
-        "step": 5,
-        "message": "任务存储增强已就绪（列表/更新/状态流转）",
+        "step": 6,
+        "message": "定时提醒已就绪",
+        "scheduler": scheduler_status(),
     }

@@ -209,6 +209,8 @@ $("btn-parse").addEventListener("click", () => parsePreview().catch(console.erro
 $("btn-confirm").addEventListener("click", () => confirmCreate().catch(console.error));
 $("btn-quick").addEventListener("click", () => quickCreate().catch(console.error));
 $("btn-refresh").addEventListener("click", () => loadTasks().catch(console.error));
+$("btn-scan").addEventListener("click", () => runScan().catch(console.error));
+$("btn-refresh-logs").addEventListener("click", () => loadNotifications().catch(console.error));
 
 ["filter-status", "filter-student", "filter-q", "filter-overdue"].forEach((id) => {
   $(id).addEventListener("change", () => loadTasks().catch(console.error));
@@ -227,8 +229,50 @@ $("task-list").addEventListener("click", (event) => {
   setStatus(Number(item.dataset.id), btn.dataset.action).catch(console.error);
 });
 
+async function loadNotifications() {
+  const res = await fetch("/api/notifications?limit=20");
+  if (!res.ok) {
+    $("notify-meta").textContent = "通知日志加载失败";
+    return;
+  }
+  const data = await res.json();
+  $("notify-meta").textContent = `共 ${data.total || 0} 条通知记录`;
+  const box = $("notify-list");
+  if (!data.items || !data.items.length) {
+    box.innerHTML = `<p class="empty">暂无通知。可创建一条即将到期的提醒后点「立即扫描」。</p>`;
+    return;
+  }
+  box.innerHTML = data.items
+    .map((log) => {
+      const time = log.created_at ? new Date(log.created_at).toLocaleString("zh-CN", { hour12: false }) : "";
+      return `
+      <article class="notify-item">
+        <div class="task-title-row">
+          <strong>${escapeHtml(log.title)}</strong>
+          <span class="badge status-${log.status === "success" ? "done" : "cancelled"}">${escapeHtml(log.status)}</span>
+          <span class="badge">${escapeHtml(log.channel)}</span>
+        </div>
+        <p class="notify-body">${escapeHtml(log.body)}</p>
+        <div class="task-meta"><span>${escapeHtml(time)}</span></div>
+      </article>`;
+    })
+    .join("");
+}
+
+async function runScan() {
+  const res = await fetch("/api/notifications/run-once", { method: "POST" });
+  if (!res.ok) {
+    alert("扫描失败：" + (await res.text()));
+    return;
+  }
+  const stats = await res.json();
+  showResult(stats);
+  await Promise.all([loadTasks(), loadNotifications()]);
+}
+
 if (!$("nl-input").value) {
   $("nl-input").value = "8月20日下午3点提醒我联系学生王同学确认作品集修改情况";
 }
 
 loadTasks().catch(console.error);
+loadNotifications().catch(console.error);

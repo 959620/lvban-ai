@@ -89,6 +89,19 @@
       <div id="task-list" class="task-list"></div>
     </section>
 
+    <section class="panel">
+      <div class="panel-head">
+        <h2>提醒与通知</h2>
+        <div class="actions tight">
+          <button type="button" id="btn-scan" class="btn primary">立即扫描提醒</button>
+          <button type="button" id="btn-refresh-logs" class="btn secondary">刷新日志</button>
+        </div>
+      </div>
+      <p class="hint">调度器默认每 60 秒扫描一次；测试时可点「立即扫描提醒」。</p>
+      <p class="meta" id="notify-meta">加载中…</p>
+      <div id="notify-list" class="notify-list"></div>
+    </section>
+
     <section class="panel" id="result-panel" hidden>
       <h2>最近操作结果</h2>
       <pre id="result-box" class="result"></pre>
@@ -100,6 +113,7 @@
         <li><a href="/docs">OpenAPI /docs</a></li>
         <li><a href="/api/health">/api/health</a></li>
         <li><a href="/api/tasks">/api/tasks</a></li>
+        <li><a href="/api/notifications">/api/notifications</a></li>
       </ul>
     </section>
   </main>

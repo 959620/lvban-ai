@@ -6,13 +6,13 @@ API 路由汇总。
 
 from fastapi import APIRouter
 
-from app.api import health, tasks
+from app.api import health, notifications, tasks
 
 api_router = APIRouter(prefix="/api")
 api_router.include_router(health.router)
 api_router.include_router(tasks.router)
+api_router.include_router(notifications.router)
 
-# Step 5+ 将在此挂载：
-# from app.api import students, notifications
+# 后续：
+# from app.api import students
 # api_router.include_router(students.router)
-# api_router.include_router(notifications.router)

@@ -265,10 +265,35 @@ a { color: var(--accent); }
   color: var(--muted);
 }
 
+.actions.tight {
+  margin-top: 0;
+}
+
+.notify-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.notify-item {
+  padding: 0.8rem 0.95rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.notify-body {
+  margin: 0.35rem 0 0.45rem;
+  color: var(--ink);
+  line-height: 1.5;
+  font-size: 0.92rem;
+}
+
 @media (max-width: 640px) {
   .form-grid,
   .filters { grid-template-columns: 1fr; }
   .task-item { flex-direction: column; }
   .task-actions { flex-direction: row; flex-wrap: wrap; }
   .filters .check { padding-top: 0; }
+  .panel-head { flex-direction: column; align-items: flex-start; }
 }
